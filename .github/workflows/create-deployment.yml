@@ -1,0 +1,31 @@
+name: Create Deployment
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  create-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub Deployment
+        uses: bobheadxi/deployments@v1
+        id: deployment
+        with:
+          step: start
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: production
+          desc: Triggered by push to main branch
+
+      - name: Update Deployment Status (In Progress)
+        uses: bobheadxi/deployments@v1
+        with:
+          step: finish
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: production
+          status: in_progress
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          desc: Coolify is deploying the application
+
+      # Note: The final deployment status will be updated by Coolify
+      # through the webhook or manually through the deployment-status workflow
