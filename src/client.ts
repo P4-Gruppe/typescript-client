@@ -5,7 +5,7 @@ export class RedtypeClient {
   private baseUrl: string;
   private schemaValidated: boolean = false;
 
-  constructor(baseUrl: string = 'http://sg4os4okwcs00s8sowww0wco.138.2.151.42.sslip.io') {
+  constructor(baseUrl: string = 'localhost:3000') {
     this.baseUrl = baseUrl;
   }
 
@@ -35,6 +35,10 @@ export class RedtypeClient {
   /**
    * Validates that the client's schema matches the server's schema by comparing hashes.
    * This should be called before making any other requests to ensure schema compatibility.
+   *
+   * Note: This method has two modes of operation:
+   * 1. If the server has the /validate-schema endpoint, it will use hash validation
+   * 2. If the server doesn't have the endpoint yet, it will fall back to sending the full schema
    */
   async validateSchema(schema: Schema): Promise<boolean> {
     if (this.schemaValidated) {
@@ -48,19 +52,39 @@ export class RedtypeClient {
     };
 
     try {
-      const response = await fetch(`${this.baseUrl}/validate-schema`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(validationRequest),
-      });
+      // First try the hash validation endpoint
+      try {
+        const response = await fetch(`${this.baseUrl}/validate-schema`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(validationRequest),
+        });
 
-      const validationResponse = await this.handleResponse<SchemaValidationResponse>(response);
-      this.schemaValidated = validationResponse.valid;
+        if (response.ok) {
+          const validationResponse = await response.json() as SchemaValidationResponse;
+          this.schemaValidated = validationResponse.valid;
+
+          if (!this.schemaValidated) {
+            console.error(`Schema validation failed: ${validationResponse.message}. Please run the configuration script.`);
+          }
+
+          return this.schemaValidated;
+        }
+        // If we get a 404, the endpoint doesn't exist yet, so we'll fall back to the old method
+      } catch {
+        console.warn('Schema validation endpoint not available, falling back to schema definition');
+        // Fall through to the fallback method
+      }
+
+      // Fallback: Define the schema directly (old method)
+      console.log('Falling back to full schema definition...');
+      const schemaResponse = await this.defineSchema(schema);
+      this.schemaValidated = schemaResponse.success;
 
       if (!this.schemaValidated) {
-        console.error(`Schema validation failed: ${validationResponse.message}`);
+        console.error('Schema definition failed');
       }
 
       return this.schemaValidated;
