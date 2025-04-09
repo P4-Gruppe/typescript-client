@@ -14,7 +14,7 @@ export interface Schema {
 }
 
 // Query Types
-export type Operator = 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'contains';
+export type Operator = '==' | '!=' | '>' | '>=' | '<' | '<=' | 'contains';
 
 export interface QueryCondition {
   field: string;

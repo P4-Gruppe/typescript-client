@@ -3,7 +3,7 @@ import type { Schema, Query, QueryResult, SchemaResponse } from './types';
 export class RedtypeClient {
   private baseUrl: string;
 
-  constructor(baseUrl: string = 'http://localhost:3000') {
+  constructor(baseUrl: string = 'http://sg4os4okwcs00s8sowww0wco.138.2.151.42.sslip.io') {
     this.baseUrl = baseUrl;
   }
 

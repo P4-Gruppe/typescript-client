@@ -1,23 +1,11 @@
 import { RedtypeClient } from './client';
-import type { Schema, Query } from './types';
+import type { Query } from './types';
+import { userSchema } from './redTypeConfig';
 
 async function main() {
   const client = new RedtypeClient();
 
   try {
-    // Define a schema for a User
-    const userSchema: Schema = {
-      name: 'users',
-      fields: [
-        { name: 'id', type: 'number', required: true, unique: true },
-        { name: 'name', type: 'string', required: true },
-        { name: 'email', type: 'string', required: true, unique: true },
-        { name: 'age', type: 'number' },
-        { name: 'isActive', type: 'boolean' },
-        { name: 'createdAt', type: 'date' },
-      ],
-    };
-
     // Create the schema
     console.log('Creating schema...');
     const schemaResponse = await client.defineSchema(userSchema);
@@ -40,8 +28,8 @@ async function main() {
     const query: Query = {
       schema: 'users',
       where: [
-        { field: 'age', operator: 'gte', value: 25 },
-        { field: 'isActive', operator: 'eq', value: true },
+        { field: 'age', operator: '>=', value: 25 },
+        { field: 'isActive', operator: '==', value: true },
       ],
       select: ['name', 'email', 'age'],
       limit: 10,
