@@ -6,10 +6,16 @@ async function main() {
   const client = new RedtypeClient();
 
   try {
-    // Create the schema
-    console.log('Creating schema...');
-    const schemaResponse = await client.defineSchema(userSchema);
-    console.log('Schema response:', schemaResponse);
+    // Validate the schema against the server
+    console.log('Validating schema...');
+    const isValid = await client.validateSchema(userSchema);
+
+    if (!isValid) {
+      console.error('Schema validation failed. Please run the configuration script first.');
+      return;
+    }
+
+    console.log('Schema validation successful.');
 
     // Insert a user
     console.log('Inserting user...');
@@ -42,4 +48,4 @@ async function main() {
   }
 }
 
-main().catch(console.error); 
+main().catch(console.error);

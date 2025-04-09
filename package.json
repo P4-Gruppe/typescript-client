@@ -4,15 +4,21 @@
   "type": "module",
   "scripts": {
     "start": "bun run index.ts",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "example": "bun run src/example.ts",
+    "configure-schema": "bun run src/configureSchema.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/crypto-js": "^4.2.2",
     "@typescript-eslint/eslint-plugin": "^8.29.1",
     "@typescript-eslint/parser": "^8.29.1",
     "eslint": "^9.24.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "crypto-js": "^4.2.0"
   }
 }

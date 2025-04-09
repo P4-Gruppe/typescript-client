@@ -39,4 +39,15 @@ export interface QueryResult<T> {
 export interface SchemaResponse {
   success: boolean;
   message: string;
-} 
+  hash?: string; // Hash of the schema for validation
+}
+
+export interface SchemaValidationResponse {
+  valid: boolean;
+  message: string;
+}
+
+export interface SchemaValidationRequest {
+  schemaName: string;
+  hash: string;
+}
