@@ -29,12 +29,12 @@ export default function SandboxPage() {
 
     try {
       // Replace with actual API call
-      const res = await fetch('/api/redtype', {
+      const res = await fetch('/api/redtype/parse', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain',
         },
-        body: JSON.stringify({ prompt }),
+        body: prompt,
       });
 
       if (!res.ok) {
@@ -42,9 +42,9 @@ export default function SandboxPage() {
         throw new Error(`HTTP error! status: ${res.status} - ${errorData.error || 'Unknown error'}`);
       }
 
-      const data = await res.json();
-      setResponse(data.response || 'No response content');
+      const data = await res.text();
 
+      setResponse(data);
     } catch (err) {
       console.error('Error sending prompt:', err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -86,7 +86,7 @@ export default function SandboxPage() {
       {response && (
         <div>
           <h2 className="text-xl font-semibold mb-2">Response:</h2>
-          <pre className="bg-gray-100 p-4 rounded text-black whitespace-pre-wrap">{response}</pre>
+          <pre className="bg-green-100 p-4 rounded text-black whitespace-pre-wrap">{response}</pre>
         </div>
       )}
     </div>
