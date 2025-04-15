@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     console.log(`Received prompt: ${prompt}`);
 
     // Implement logic to send the prompt to the Redtype service
-    const redtypeUrl = 'http://0.0.0.0:3000/parse'; // Assuming Redtype runs here
+    const redtypeUrl = 'http://sg4os4okwcs00s8sowww0wco.138.2.151.42.sslip.io/parse'; // Assuming Redtype runs here
 
     try {
       const redtypeRes = await fetch(redtypeUrl, {
