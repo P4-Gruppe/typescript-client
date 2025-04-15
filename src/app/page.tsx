@@ -1,12 +1,25 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
 
 export default function SandboxPage() {
-  const [prompt, setPrompt] = useState('');
+  const defaultPrompt = `type Post {
+    id: String @key("primary"),
+    author: Ref<User>,
+    content: String @maxlen(1000),
+    tags: List<String> @maxlen(20),
+    views: Int @min(0) @default(0),
+    created: Timestamp @index,
+    updated: Timestamp @index,
+}`;
+  const [prompt, setPrompt] = useState(defaultPrompt);
   const [response, setResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -45,21 +58,22 @@ export default function SandboxPage() {
       <h1 className="text-2xl font-bold mb-4">Redtype Sandbox</h1>
       <form onSubmit={handleSubmit} className="mb-4">
         <label htmlFor="prompt" className="block mb-2 font-medium">Enter Prompt:</label>
-        <textarea
+        <Textarea
           id="prompt"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          className="w-full p-2 border rounded mb-2 text-white"
+          className="w-full p-2 border rounded mb-2"
           rows={4}
           required
+          placeholder="Enter your prompt here"
         />
-        <button
+        <Button
           type="submit"
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
           disabled={isLoading || !prompt}
         >
           {isLoading ? 'Sending...' : 'Send Prompt'}
-        </button>
+        </Button>
       </form>
 
       {error && (
