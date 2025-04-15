@@ -30,8 +30,7 @@ export async function POST(request: NextRequest) {
         throw new Error(`Redtype service error! status: ${redtypeRes.status}, body: ${errorBody}`);
       }
 
-      const redtypeData = await redtypeRes.text();
-      const redtypeResponse = redtypeData || 'No response content from Redtype';
+      const redtypeResponse = await redtypeRes.text();
 
       return NextResponse.json({ response: redtypeResponse });
 
