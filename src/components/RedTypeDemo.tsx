@@ -38,6 +38,10 @@ export default function RedTypeDemo() {
         'SET User[1].name TO "John Doe";',
         "SET User[1].age TO 30;",
         'SET User[1].email TO "john@example.com";',
+        'SET User[2].name TO "Jane Doe";',
+        "SET User[2].age TO 25;",
+        'SET User[2].email TO "jane@example.com";',
+        'SET User[3].name TO "John Smith";',
       ].join("\n");
 
       const result = await client.executeCommand(commands);
@@ -56,11 +60,9 @@ export default function RedTypeDemo() {
   const handleQueryUser = async () => {
     try {
       const query = `
-                GET User[1].name TO user_name;
-                GET User[1].age TO user_age;
-                GET User[1].email TO user_email;
+                x: Option<String> = Some("");
+                x = GET User[1].name;
             `;
-
       const result = await client.executeQuery(query);
       setOutput(`Query results:\n${JSON.stringify(result, null, 2)}`);
     } catch (error) {
