@@ -10,7 +10,7 @@ export default function RedTypeDemo() {
     name: String,
     age: Int,
     email: String
-}`);
+},`);
 
   const client = new RedTypeClient();
 
@@ -35,9 +35,9 @@ export default function RedTypeDemo() {
   const handleInsertUser = async () => {
     try {
       const commands = [
-        'SET User:1:name TO "John Doe";',
-        "SET User:1:age TO 30;",
-        'SET User:1:email TO "john@example.com";',
+        'SET User[1].name TO "John Doe";',
+        "SET User[1].age TO 30;",
+        'SET User[1].email TO "john@example.com";',
       ].join("\n");
 
       const result = await client.executeCommand(commands);
@@ -56,10 +56,9 @@ export default function RedTypeDemo() {
   const handleQueryUser = async () => {
     try {
       const query = `
-                GET User.id TO user_id;
-                GET User.name TO user_name;
-                GET User.age TO user_age;
-                GET User.email TO user_email;
+                GET User[1].name TO user_name;
+                GET User[1].age TO user_age;
+                GET User[1].email TO user_email;
             `;
 
       const result = await client.executeQuery(query);

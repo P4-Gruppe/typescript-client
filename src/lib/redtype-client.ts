@@ -1,9 +1,30 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+
+// Define response types
+interface SchemaResponse {
+    schema: string;
+}
+
+interface CommandResponse {
+    result: unknown;
+}
+
+interface QueryResponse {
+    results: unknown;
+}
+
+interface DbStatsResponse {
+    stats: {
+        collections: number;
+        documents: number;
+        size: number;
+    };
+}
 
 export class RedTypeClient {
     private baseUrl: string;
 
-    constructor(baseUrl: string = 'http://localhost:1337') {
+    constructor(baseUrl: string = '/api/redtype') {
         this.baseUrl = baseUrl;
     }
 
@@ -12,7 +33,11 @@ export class RedTypeClient {
         try {
             await axios.post(`${this.baseUrl}/setSchema`, schema);
         } catch (error) {
-            console.error('Failed to set schema:', error);
+            if (error instanceof AxiosError && error.message.includes('CORS')) {
+                console.error('CORS error: The server is not configured to allow cross-origin requests');
+            } else {
+                console.error('Failed to set schema:', error);
+            }
             throw error;
         }
     }
@@ -20,43 +45,59 @@ export class RedTypeClient {
     // Get the current schema
     async getSchema(): Promise<string> {
         try {
-            const response = await axios.get(`${this.baseUrl}/getSchema`);
+            const response = await axios.get<SchemaResponse>(`${this.baseUrl}/getSchema`);
             return response.data.schema;
         } catch (error) {
-            console.error('Failed to get schema:', error);
+            if (error instanceof AxiosError && error.message.includes('CORS')) {
+                console.error('CORS error: The server is not configured to allow cross-origin requests');
+            } else {
+                console.error('Failed to get schema:', error);
+            }
             throw error;
         }
     }
 
     // Execute a command
-    async executeCommand(command: string): Promise<any> {
+    async executeCommand(command: string): Promise<CommandResponse> {
         try {
-            const response = await axios.post(`${this.baseUrl}/command`, command);
+            const response = await axios.post<CommandResponse>(`${this.baseUrl}/command`, command);
             return response.data;
         } catch (error) {
-            console.error('Failed to execute command:', error);
+            if (error instanceof AxiosError && error.message.includes('CORS')) {
+                console.error('CORS error: The server is not configured to allow cross-origin requests');
+            } else {
+                console.error('Failed to execute command:', error);
+            }
             throw error;
         }
     }
 
     // Execute a query
-    async executeQuery(query: string): Promise<any> {
+    async executeQuery(query: string): Promise<QueryResponse> {
         try {
-            const response = await axios.post(`${this.baseUrl}/`, query);
+            const response = await axios.post<QueryResponse>(`${this.baseUrl}/`, query);
             return response.data;
         } catch (error) {
-            console.error('Failed to execute query:', error);
+            if (error instanceof AxiosError && error.message.includes('CORS')) {
+                console.error('CORS error: The server is not configured to allow cross-origin requests');
+            } else {
+                console.error('Failed to execute query:', error);
+            }
             throw error;
         }
     }
 
     // Get database statistics
-    async getDbStats(): Promise<any> {
+    async getDbStats(): Promise<DbStatsResponse> {
         try {
-            const response = await axios.get(`${this.baseUrl}/dbStats`);
+            const response = await axios.get<DbStatsResponse>(`${this.baseUrl}/dbStats`);
             return response.data;
         } catch (error) {
-            console.error('Failed to get database stats:', error);
+            if (error instanceof AxiosError && error.message.includes('CORS')) {
+                console.error('CORS error: The server is not configured to allow cross-origin requests');
+            } else {
+                console.error('Failed to get database stats:', error);
+            }
             throw error;
         }
     }
