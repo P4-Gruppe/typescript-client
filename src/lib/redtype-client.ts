@@ -6,11 +6,17 @@ interface SchemaResponse {
 }
 
 interface CommandResponse {
-    result: unknown;
+    success: boolean;
+    message: string;
+    values: Record<string, string>;
+    types: Record<string, string>;
 }
 
 interface QueryResponse {
-    results: unknown;
+    success: boolean;
+    message: string;
+    values: Record<string, string>;
+    types: Record<string, string>;
 }
 
 interface DbStatsResponse {
@@ -26,6 +32,17 @@ export class RedTypeClient {
 
     constructor(baseUrl: string = '/api/redtype') {
         this.baseUrl = baseUrl;
+    }
+
+    // Get a result with its type from a response
+    getResult(response: CommandResponse | QueryResponse, key: string = 'result'): { value: string; type: string } | null {
+        if (response.values[key] !== undefined && response.types[key] !== undefined) {
+            return {
+                value: response.values[key],
+                type: response.types[key]
+            };
+        }
+        return null;
     }
 
     // Set the database schema
