@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { RedTypeClient } from "@/lib/redtype-client";
+import { AxiosError } from "axios";
 
 export default function RedTypeDemo() {
   const [output, setOutput] = useState<string>("");
@@ -19,7 +20,11 @@ export default function RedTypeDemo() {
       await client.setSchema(schema);
       setOutput("Schema set successfully!");
     } catch (error) {
-      setOutput(`Error setting schema: ${error}`);
+      const errorMessage =
+        error instanceof AxiosError && error.response?.data
+          ? JSON.stringify(error.response.data)
+          : `${error}`;
+      setOutput(`Error setting schema: ${errorMessage}`);
     }
   };
 
@@ -28,7 +33,11 @@ export default function RedTypeDemo() {
       const currentSchema = await client.getSchema();
       setOutput(`Current schema:\n${currentSchema}`);
     } catch (error) {
-      setOutput(`Error getting schema: ${error}`);
+      const errorMessage =
+        error instanceof AxiosError && error.response?.data
+          ? JSON.stringify(error.response.data)
+          : `${error}`;
+      setOutput(`Error getting schema: ${errorMessage}`);
     }
   };
 
@@ -53,7 +62,11 @@ export default function RedTypeDemo() {
         )}`
       );
     } catch (error) {
-      setOutput(`Error inserting user: ${error}`);
+      const errorMessage =
+        error instanceof AxiosError && error.response?.data
+          ? JSON.stringify(error.response.data)
+          : `${error}`;
+      setOutput(`Error inserting user: ${errorMessage}`);
     }
   };
 
@@ -65,7 +78,11 @@ export default function RedTypeDemo() {
       const result = await client.executeQuery(query);
       setOutput(`Query results:\n${JSON.stringify(result, null, 2)}`);
     } catch (error) {
-      setOutput(`Error querying user: ${error}`);
+      const errorMessage =
+        error instanceof AxiosError && error.response?.data
+          ? JSON.stringify(error.response.data)
+          : `${error}`;
+      setOutput(`Error querying user: ${errorMessage}`);
     }
   };
 
@@ -74,7 +91,11 @@ export default function RedTypeDemo() {
       const stats = await client.getDbStats();
       setOutput(`Database stats:\n${JSON.stringify(stats, null, 2)}`);
     } catch (error) {
-      setOutput(`Error getting stats: ${error}`);
+      const errorMessage =
+        error instanceof AxiosError && error.response?.data
+          ? JSON.stringify(error.response.data)
+          : `${error}`;
+      setOutput(`Error getting stats: ${errorMessage}`);
     }
   };
 
