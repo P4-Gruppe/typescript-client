@@ -60,8 +60,7 @@ export default function RedTypeDemo() {
   const handleQueryUser = async () => {
     try {
       const query = `
-                x: Option<String> = Some("");
-                x = GET User[1].name;
+                x: Option<String> = GET User[1].name;
             `;
       const result = await client.executeQuery(query);
       setOutput(`Query results:\n${JSON.stringify(result, null, 2)}`);
