@@ -522,6 +522,8 @@ Inventory {
               onChange={(e) => setSchema(e.target.value)}
               className="w-full h-40 p-3 border rounded-md font-mono text-sm bg-gray-50"
               placeholder="Define your schema here..."
+              spellCheck="false"
+              autoComplete="off"
             />
             <div className="mt-3 flex gap-2">
               <button
@@ -577,6 +579,8 @@ Inventory {
                     ? 'Enter command (e.g. SET User[1].name TO "John Doe";)'
                     : "Enter query (e.g. x: Option<String> = GET User[1].name; return x;)"
                 }
+                spellCheck="false"
+                autoComplete="off"
               />
             </div>
             <button
