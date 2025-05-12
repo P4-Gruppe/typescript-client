@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { RedTypeClient } from "@/lib/redtype-client";
 import { AxiosError } from "axios";
+import { useState } from "react";
 
 export default function RedTypeDemo() {
   const [output, setOutput] = useState<string>("");
@@ -107,7 +107,7 @@ export default function RedTypeDemo() {
                     None => {
                         return "None";
                     }
-                };
+                }
             `;
         const result = await client.executeQuery(query);
         setOutput(`Query results:\n${JSON.stringify(result, null, 2)}`);
@@ -282,7 +282,7 @@ Inventory {
         i: Int = 1;
         while (i <= 1000) do {
           /* Get product category */
-          category: Option<String> = GET Product[i].category;;
+          category: Option<String> = GET Product[i].category;
           match category {
             Some(cat) => {
               if (cat == "Electronics") {
@@ -295,35 +295,35 @@ Inventory {
                 booksCount = booksCount + 1;
               } elif (cat == "Toys") {
                 toysCount = toysCount + 1;
-              };
+              }
             }
-          };;
+          }
           
           /* Check for highest price */
-          price: Option<Double> = GET Product[i].price;;
+          price: Option<Double> = GET Product[i].price;
           match price {
             Some(p) => {
               if (p > maxPrice) {
-                maxPrice = p;;
+                maxPrice = p;
                 maxPriceProduct = i;
-              };
+              }
             }
-          };;
+          }
           
           /* Get inventory quantity */
-          quantity: Option<Int> = GET Inventory[i].quantity;;
+          quantity: Option<Int> = GET Inventory[i].quantity;
           match quantity {
             Some(q) => {
-              totalInventory = totalInventory + q;;
+              totalInventory = totalInventory + q;
               if (q < 10) {
                 lowStockCount = lowStockCount + 1;
-              };
+              }
             }
-          };;
+          }
           
           
           i = i + 1;
-        };
+        }
         
         /* Get name of highest priced product */
         maxProductName: Option<String> = GET Product[maxPriceProduct].name;
@@ -342,121 +342,121 @@ Inventory {
         /* Count for John Doe */
         i = 1;
         while (i <= 50) do {
-          customer: Option<String> = GET Order[i].customerName;;
+          customer: Option<String> = GET Order[i].customerName;
           match customer {
             Some(name) => {
               if (name == "John Doe") {
                 customerCount1 = customerCount1 + 1;
-              };
+              }
             }
-          };;
+          }
           
           i = i + 1;
-        };
+        }
         
         /* Count for Jane Smith */
         i = 1;
         while (i <= 50) do {
-          customer: Option<String> = GET Order[i].customerName;;
+          customer: Option<String> = GET Order[i].customerName;
           match customer {
             Some(name) => {
               if (name == "Jane Smith") {
                 customerCount2 = customerCount2 + 1;
-              };
+              }
             }
-          };;
+          }
           
           i = i + 1;
-        };
+        }
         
         
         /* Count for Alex Johnson */
         i = 1;
         while (i <= 50) do {
-          customer: Option<String> = GET Order[i].customerName;;
+          customer: Option<String> = GET Order[i].customerName;
           match customer {
             Some(name) => {
               if (name == "Alex Johnson") {
                 customerCount3 = customerCount3 + 1;
-              };
+              }
             }
-          };;
+          }
           
           i = i + 1;
-        };
+        }
         
         
         /* Count for Maria Garcia */
         i = 1;
         while (i <= 50) do {
-          customer: Option<String> = GET Order[i].customerName;;
+          customer: Option<String> = GET Order[i].customerName;
           match customer {
             Some(name) => {
               if (name == "Maria Garcia") {
                 customerCount4 = customerCount4 + 1;
-              };
+              }
             }
-          };;
+          }
           
           i = i + 1;
-        };
+        }
         
         
         /* Count for Wei Chen */
         i = 1;
         while (i <= 50) do {
-          customer: Option<String> = GET Order[i].customerName;;
+          customer: Option<String> = GET Order[i].customerName;
           match customer {
             Some(name) => {
               if (name == "Wei Chen") {
                 customerCount5 = customerCount5 + 1;
-              };
+              }
             }
-          };;
+          }
           
           i = i + 1;
-        };
+        }
         
         
         /* Find the top customer */
         if (customerCount1 > topCustomerOrders) {
-          topCustomerOrders = customerCount1;;
+          topCustomerOrders = customerCount1;
           topCustomer = "John Doe";
-        };
+        }
         
         if (customerCount2 > topCustomerOrders) {
-          topCustomerOrders = customerCount2;;
+          topCustomerOrders = customerCount2;
           topCustomer = "Jane Smith";
-        };
+        }
         
         if (customerCount3 > topCustomerOrders) {
-          topCustomerOrders = customerCount3;;
+          topCustomerOrders = customerCount3;
           topCustomer = "Alex Johnson";
-        };
+        }
         
         if (customerCount4 > topCustomerOrders) {
-          topCustomerOrders = customerCount4;;
+          topCustomerOrders = customerCount4;
           topCustomer = "Maria Garcia";
-        };
+        }
         
         if (customerCount5 > topCustomerOrders) {
-          topCustomerOrders = customerCount5;;
+          topCustomerOrders = customerCount5;
           topCustomer = "Wei Chen";
-        };
+        }
         
         /* Count the total number of order items */
         totalOrderItems: Int = 0;
         i = 1;
         while (i <= 5000) do {
-          orderItemExists: Option<Int> = GET OrderItem[i].orderId;;
+          orderItemExists: Option<Int> = GET OrderItem[i].orderId;
           match orderItemExists {
             Some(_) => {
               totalOrderItems = totalOrderItems + 1;
             }
-          };;
+          }
           
           i = i + 1;
-        };
+        }
         
         return true;
       `;
