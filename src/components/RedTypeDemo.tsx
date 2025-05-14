@@ -479,6 +479,176 @@ Inventory {
     });
   };
 
+  const handleConcurrencyExample = async () => {
+    executeOperation(async () => {
+      try {
+        // Set up a simple bank account schema
+        const accountSchema = `Account {
+  id: Int @primary,
+  balance: Double,
+  owner: String
+}`;
+        
+        await client.setSchema(accountSchema);
+        setOutput("Bank account schema set successfully! Creating accounts...");
+        
+        // Create initial accounts
+        const setupCommands = [
+          'SET Account[1].balance TO 1000.0;',
+          'SET Account[1].owner TO "Alice";',
+          'SET Account[2].balance TO 500.0;',
+          'SET Account[2].owner TO "Bob";',
+        ].join("\n");
+        
+        await client.executeCommand(setupCommands);
+        setOutput("Created two bank accounts. Now demonstrating concurrent transfers...");
+        
+        // First let's show what happens WITHOUT locking (potential race condition)
+        const transferWithoutLock = `
+aliceBalance: Option<Double> = GET Account[1].balance;
+bobBalance: Option<Double> = GET Account[2].balance;
+
+match aliceBalance {
+  Some(aliceAmount) => {
+    match bobBalance {
+      Some(bobAmount) => {
+        transferAmount: Double = 100.0;
+        newAliceBalance: Double = aliceAmount - transferAmount;
+        newBobBalance: Double = bobAmount + transferAmount;
+        
+        i: Int = 0;
+        while (i < 1000000) do {
+          i = i + 1;
+        }
+        
+        SET Account[1].balance TO newAliceBalance;
+        SET Account[2].balance TO newBobBalance;
+        
+        return "Transfer completed without locking!";
+      }
+      None => {
+        return "Bob's account not found";
+      }
+    }
+  }
+  None => {
+    return "Alice's account not found";
+  }
+}`;
+
+        // Now let's show the CORRECT way with locking
+        const transferWithLock = `
+LOCK Account[1], Account[2];
+
+aliceBalance: Option<Double> = GET Account[1].balance;
+bobBalance: Option<Double> = GET Account[2].balance;
+
+match aliceBalance {
+  Some(aliceAmount) => {
+    match bobBalance {
+      Some(bobAmount) => {
+        transferAmount: Double = 100.0;
+        newAliceBalance: Double = aliceAmount - transferAmount;
+        newBobBalance: Double = bobAmount + transferAmount;
+        
+        i: Int = 0;
+        while (i < 1000000) do {
+          i = i + 1;
+        }
+        
+        SET Account[1].balance TO newAliceBalance;
+        SET Account[2].balance TO newBobBalance;
+        
+        return "Transfer completed safely with locking!";
+      }
+      None => {
+        return "Bob's account not found";
+      }
+    }
+  }
+  None => {
+    return "Alice's account not found";
+  }
+}`;
+
+        // Show account balances before transfers
+        const getAliceBalanceQuery = `
+balance: Option<Double> = GET Account[1].balance;
+return balance;
+`;
+
+        const getBobBalanceQuery = `
+balance: Option<Double> = GET Account[2].balance;
+return balance;
+`;
+
+        // Get initial balances
+        const aliceBalanceResult = await client.executeQuery(getAliceBalanceQuery);
+        const bobBalanceResult = await client.executeQuery(getBobBalanceQuery);
+        
+        const aliceBalance = client.getResult(aliceBalanceResult)?.value;
+        const bobBalance = client.getResult(bobBalanceResult)?.value;
+        
+        setOutput(`Initial balances: Alice: $${aliceBalance}, Bob: $${bobBalance}`);
+
+        // Now simulate concurrent transfers
+        setOutput(prev => `${prev}\n\nSimulating concurrent transfers...`);
+        
+        // Execute transfers concurrently
+        // We'll demo the unsafe way first, then the safe way with LOCK
+        setOutput(prev => `${prev}\n\n1. Without LOCK (potential race condition)`);
+        
+        // In real-world, these would be from different clients, here we simulate with multiple async calls
+        const promises = [
+          client.executeQuery(transferWithoutLock),
+          client.executeQuery(transferWithoutLock)
+        ];
+        
+        await Promise.all(promises);
+        
+        // Check balances after unsafely concurrent transfers
+        const aliceUnsafeResult = await client.executeQuery(getAliceBalanceQuery);
+        const bobUnsafeResult = await client.executeQuery(getBobBalanceQuery);
+        
+        const aliceUnsafeBalance = client.getResult(aliceUnsafeResult)?.value;
+        const bobUnsafeBalance = client.getResult(bobUnsafeResult)?.value;
+        
+        setOutput(prev => `${prev}\nAfter concurrent transfers WITHOUT locking: Alice: $${aliceUnsafeBalance}, Bob: $${bobUnsafeBalance}`);
+        setOutput(prev => `${prev}\n(Note: Without locking, if both transfers execute concurrently, we might lose updates!)`);
+        
+        // Reset balances
+        await client.executeCommand('SET Account[1].balance TO 1000.0; SET Account[2].balance TO 500.0;');
+        
+        // Now demonstrate with proper locking
+        setOutput(prev => `${prev}\n\n2. With LOCK (safe concurrent access)`);
+        
+        // Even though these execute concurrently, the LOCK ensures they happen one after another
+        const safePromises = [
+          client.executeQuery(transferWithLock),
+          client.executeQuery(transferWithLock)
+        ];
+        
+        await Promise.all(safePromises);
+        
+        // Check balances after safely concurrent transfers
+        const aliceSafeResult = await client.executeQuery(getAliceBalanceQuery);
+        const bobSafeResult = await client.executeQuery(getBobBalanceQuery);
+        
+        const aliceSafeBalance = client.getResult(aliceSafeResult)?.value;
+        const bobSafeBalance = client.getResult(bobSafeResult)?.value;
+        
+        setOutput(prev => `${prev}\nAfter concurrent transfers WITH locking: Alice: $${aliceSafeBalance}, Bob: $${bobSafeBalance}`);
+        setOutput(prev => `${prev}\n\nConclusion: Using LOCK ensures that all operations on specified keys are atomic, preventing race conditions even during concurrent execution.`);
+        
+      } catch (error) {
+        const errorMessage = error instanceof AxiosError && error.response?.data
+          ? JSON.stringify(error.response.data)
+          : `${error}`;
+        setOutput(`Error in concurrency example: ${errorMessage}`);
+      }
+    });
+  };
+
   const handleManualExecution = async () => {
     executeOperation(async () => {
       try {
@@ -624,6 +794,13 @@ Inventory {
                 className="px-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
               >
                 Run Big Example
+              </button>
+              <button
+                onClick={handleConcurrencyExample}
+                disabled={loading}
+                className="px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 col-span-2"
+              >
+                Concurrency Example (LOCK Demo)
               </button>
             </div>
           </div>
