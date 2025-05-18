@@ -1,8 +1,17 @@
 "use client";
 
 import { RedTypeClient } from "@/lib/redtype-client";
+import { queryExamples } from "@/queryExamples";
 import { AxiosError } from "axios";
 import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
 
 export default function RedTypeDemo() {
   const [output, setOutput] = useState<string>("");
@@ -488,21 +497,23 @@ Inventory {
   balance: Double,
   owner: String
 }`;
-        
+
         await client.setSchema(accountSchema);
         setOutput("Bank account schema set successfully! Creating accounts...");
-        
+
         // Create initial accounts
         const setupCommands = [
-          'SET Account[1].balance TO 1000.0;',
+          "SET Account[1].balance TO 1000.0;",
           'SET Account[1].owner TO "Alice";',
-          'SET Account[2].balance TO 500.0;',
+          "SET Account[2].balance TO 500.0;",
           'SET Account[2].owner TO "Bob";',
         ].join("\n");
-        
+
         await client.executeCommand(setupCommands);
-        setOutput("Created two bank accounts. Now demonstrating concurrent transfers...");
-        
+        setOutput(
+          "Created two bank accounts. Now demonstrating concurrent transfers..."
+        );
+
         // First let's show what happens WITHOUT locking (potential race condition)
         const transferWithoutLock = `
 aliceBalance: Option<Double> = GET Account[1].balance;
@@ -583,67 +594,89 @@ return balance;
 `;
 
         // Get initial balances
-        const aliceBalanceResult = await client.executeQuery(getAliceBalanceQuery);
+        const aliceBalanceResult = await client.executeQuery(
+          getAliceBalanceQuery
+        );
         const bobBalanceResult = await client.executeQuery(getBobBalanceQuery);
-        
+
         const aliceBalance = client.getResult(aliceBalanceResult)?.value;
         const bobBalance = client.getResult(bobBalanceResult)?.value;
-        
-        setOutput(`Initial balances: Alice: $${aliceBalance}, Bob: $${bobBalance}`);
+
+        setOutput(
+          `Initial balances: Alice: $${aliceBalance}, Bob: $${bobBalance}`
+        );
 
         // Now simulate concurrent transfers
-        setOutput(prev => `${prev}\n\nSimulating concurrent transfers...`);
-        
+        setOutput((prev) => `${prev}\n\nSimulating concurrent transfers...`);
+
         // Execute transfers concurrently
         // We'll demo the unsafe way first, then the safe way with LOCK
-        setOutput(prev => `${prev}\n\n1. Without LOCK (potential race condition)`);
-        
+        setOutput(
+          (prev) => `${prev}\n\n1. Without LOCK (potential race condition)`
+        );
+
         // In real-world, these would be from different clients, here we simulate with multiple async calls
         const promises = [
           client.executeQuery(transferWithoutLock),
-          client.executeQuery(transferWithoutLock)
+          client.executeQuery(transferWithoutLock),
         ];
-        
+
         await Promise.all(promises);
-        
+
         // Check balances after unsafely concurrent transfers
-        const aliceUnsafeResult = await client.executeQuery(getAliceBalanceQuery);
+        const aliceUnsafeResult = await client.executeQuery(
+          getAliceBalanceQuery
+        );
         const bobUnsafeResult = await client.executeQuery(getBobBalanceQuery);
-        
+
         const aliceUnsafeBalance = client.getResult(aliceUnsafeResult)?.value;
         const bobUnsafeBalance = client.getResult(bobUnsafeResult)?.value;
-        
-        setOutput(prev => `${prev}\nAfter concurrent transfers WITHOUT locking: Alice: $${aliceUnsafeBalance}, Bob: $${bobUnsafeBalance}`);
-        setOutput(prev => `${prev}\n(Note: Without locking, if both transfers execute concurrently, we might lose updates!)`);
-        
+
+        setOutput(
+          (prev) =>
+            `${prev}\nAfter concurrent transfers WITHOUT locking: Alice: $${aliceUnsafeBalance}, Bob: $${bobUnsafeBalance}`
+        );
+        setOutput(
+          (prev) =>
+            `${prev}\n(Note: Without locking, if both transfers execute concurrently, we might lose updates!)`
+        );
+
         // Reset balances
-        await client.executeCommand('SET Account[1].balance TO 1000.0; SET Account[2].balance TO 500.0;');
-        
+        await client.executeCommand(
+          "SET Account[1].balance TO 1000.0; SET Account[2].balance TO 500.0;"
+        );
+
         // Now demonstrate with proper locking
-        setOutput(prev => `${prev}\n\n2. With LOCK (safe concurrent access)`);
-        
+        setOutput((prev) => `${prev}\n\n2. With LOCK (safe concurrent access)`);
+
         // Even though these execute concurrently, the LOCK ensures they happen one after another
         const safePromises = [
           client.executeQuery(transferWithLock),
-          client.executeQuery(transferWithLock)
+          client.executeQuery(transferWithLock),
         ];
-        
+
         await Promise.all(safePromises);
-        
+
         // Check balances after safely concurrent transfers
         const aliceSafeResult = await client.executeQuery(getAliceBalanceQuery);
         const bobSafeResult = await client.executeQuery(getBobBalanceQuery);
-        
+
         const aliceSafeBalance = client.getResult(aliceSafeResult)?.value;
         const bobSafeBalance = client.getResult(bobSafeResult)?.value;
-        
-        setOutput(prev => `${prev}\nAfter concurrent transfers WITH locking: Alice: $${aliceSafeBalance}, Bob: $${bobSafeBalance}`);
-        setOutput(prev => `${prev}\n\nConclusion: Using LOCK ensures that all operations on specified keys are atomic, preventing race conditions even during concurrent execution.`);
-        
+
+        setOutput(
+          (prev) =>
+            `${prev}\nAfter concurrent transfers WITH locking: Alice: $${aliceSafeBalance}, Bob: $${bobSafeBalance}`
+        );
+        setOutput(
+          (prev) =>
+            `${prev}\n\nConclusion: Using LOCK ensures that all operations on specified keys are atomic, preventing race conditions even during concurrent execution.`
+        );
       } catch (error) {
-        const errorMessage = error instanceof AxiosError && error.response?.data
-          ? JSON.stringify(error.response.data)
-          : `${error}`;
+        const errorMessage =
+          error instanceof AxiosError && error.response?.data
+            ? JSON.stringify(error.response.data)
+            : `${error}`;
         setOutput(`Error in concurrency example: ${errorMessage}`);
       }
     });
@@ -675,8 +708,12 @@ return balance;
     });
   };
 
+  const handleExampleSelect = (query: string) => {
+    setManualCommand(query);
+  };
+
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 max-w-7xl mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">
         RedType Demo
       </h1>
@@ -713,7 +750,7 @@ return balance;
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="bg-white p-6 rounded-lg shadow-md relative">
             <h2 className="text-xl font-semibold mb-3 text-gray-700">
               Manual Execution
             </h2>
@@ -740,18 +777,46 @@ return balance;
                   <span className="ml-2">Query</span>
                 </label>
               </div>
-              <textarea
-                value={manualCommand}
-                onChange={(e) => setManualCommand(e.target.value)}
-                className="w-full h-40 p-3 border rounded-md font-mono text-sm bg-gray-50"
-                placeholder={
-                  commandType === "command"
-                    ? 'Enter command (e.g. SET User[1].name TO "John Doe";)'
-                    : "Enter query (e.g. x: Option<String> = GET User[1].name; return x;)"
-                }
-                spellCheck="false"
-                autoComplete="off"
-              />
+              <div className="flex gap-2 mb-2">
+                <textarea
+                  value={manualCommand}
+                  onChange={(e) => setManualCommand(e.target.value)}
+                  className="w-full h-72 p-3 border rounded-md font-mono text-sm bg-gray-50"
+                  placeholder={
+                    commandType === "command"
+                      ? 'Enter command (e.g. SET User[1].name TO "John Doe";)'
+                      : "Enter query (e.g. x: Option<String> = GET User[1].name; return x;)"
+                  }
+                  spellCheck="false"
+                  autoComplete="off"
+                />
+              </div>
+              <div className="mb-3 absolute top-6 right-6">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="flex items-center gap-1"
+                    >
+                      Insert Example <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-80">
+                    {queryExamples.map((example, index) => (
+                      <DropdownMenuItem
+                        key={index}
+                        onClick={() => handleExampleSelect(example.query)}
+                        className="flex flex-col items-start py-2"
+                      >
+                        <span className="font-medium">{example.name}</span>
+                        <span className="text-xs text-gray-500">
+                          {example.description}
+                        </span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
             <button
               onClick={handleManualExecution}
