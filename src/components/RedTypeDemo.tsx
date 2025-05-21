@@ -713,7 +713,7 @@ return balance;
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 px-8 max-w-[90rem] mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">
         RedType Demo
       </h1>
@@ -756,36 +756,12 @@ return balance;
             </h2>
             <div className="mb-3">
               <div className="flex gap-2 mb-2">
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="commandType"
-                    checked={commandType === "command"}
-                    onChange={() => setCommandType("command")}
-                    className="form-radio h-4 w-4 text-blue-600"
-                  />
-                  <span className="ml-2">Command</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="commandType"
-                    checked={commandType === "query"}
-                    onChange={() => setCommandType("query")}
-                    className="form-radio h-4 w-4 text-blue-600"
-                  />
-                  <span className="ml-2">Query</span>
-                </label>
-              </div>
-              <div className="flex gap-2 mb-2">
                 <textarea
                   value={manualCommand}
                   onChange={(e) => setManualCommand(e.target.value)}
-                  className="w-full h-72 p-3 border rounded-md font-mono text-sm bg-gray-50"
+                  className="w-full h-96 mt-2 p-3 border rounded-md font-mono text-sm bg-gray-50"
                   placeholder={
-                    commandType === "command"
-                      ? 'Enter command (e.g. SET User[1].name TO "John Doe";)'
-                      : "Enter query (e.g. x: Option<String> = GET User[1].name; return x;)"
+                    "Select example from dropdown or type your query here..."
                   }
                   spellCheck="false"
                   autoComplete="off"
@@ -794,10 +770,7 @@ return balance;
               <div className="mb-3 absolute top-6 right-6">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="flex items-center gap-1"
-                    >
+                    <Button className="flex items-center gap-1  bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50">
                       Insert Example <ChevronDown className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -832,20 +805,6 @@ return balance;
               Operations
             </h2>
             <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={handleInsertUser}
-                disabled={loading}
-                className="px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
-              >
-                Insert User
-              </button>
-              <button
-                onClick={handleQueryUser}
-                disabled={loading}
-                className="px-4 py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors disabled:opacity-50"
-              >
-                Query User
-              </button>
               <button
                 onClick={handleGetStats}
                 disabled={loading}
