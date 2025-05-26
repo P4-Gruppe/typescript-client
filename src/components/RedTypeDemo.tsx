@@ -28,9 +28,7 @@ export default function RedTypeDemo() {
     message: string;
   } | null>(null);
   const [manualCommand, setManualCommand] = useState<string>("");
-  const [commandType, setCommandType] = useState<"command" | "query">(
-    "command"
-  );
+
 
   const client = new RedTypeClient();
 
@@ -69,63 +67,6 @@ export default function RedTypeDemo() {
             ? JSON.stringify(error.response.data)
             : `${error}`;
         setOutput(`Error getting schema: ${errorMessage}`);
-      }
-    });
-  };
-
-  const handleInsertUser = async () => {
-    executeOperation(async () => {
-      try {
-        const commands = [
-          'SET User[1].name TO "John Doe";',
-          "SET User[1].age TO 30;",
-          'SET User[1].email TO "john@example.com";',
-          'SET User[2].name TO "Jane Doe";',
-          "SET User[2].age TO 25;",
-          'SET User[2].email TO "jane@example.com";',
-          'SET User[3].name TO "John Smith";',
-        ].join("\n");
-
-        const result = await client.executeCommand(commands);
-        setOutput(
-          `User inserted successfully!\nResult: ${JSON.stringify(
-            result,
-            null,
-            2
-          )}`
-        );
-      } catch (error) {
-        const errorMessage =
-          error instanceof AxiosError && error.response?.data
-            ? JSON.stringify(error.response.data)
-            : `${error}`;
-        setOutput(`Error inserting user: ${errorMessage}`);
-      }
-    });
-  };
-
-  const handleQueryUser = async () => {
-    executeOperation(async () => {
-      try {
-        const query = `
-                x: Option<String> = GET User[1].name;
-                match x {
-                    Some(value) => {
-                        return value;
-                    }
-                    None => {
-                        return "None";
-                    }
-                }
-            `;
-        const result = await client.executeQuery(query);
-        setOutput(`Query results:\n${JSON.stringify(result, null, 2)}`);
-      } catch (error) {
-        const errorMessage =
-          error instanceof AxiosError && error.response?.data
-            ? JSON.stringify(error.response.data)
-            : `${error}`;
-        setOutput(`Error querying user: ${errorMessage}`);
       }
     });
   };
@@ -685,14 +626,9 @@ return balance;
   const handleManualExecution = async () => {
     executeOperation(async () => {
       try {
-        let result;
-        if (commandType === "command") {
-          result = await client.executeCommand(manualCommand);
-        } else {
-          result = await client.executeQuery(manualCommand);
-        }
+        const result = await client.executeQuery(manualCommand);
         setOutput(
-          `Manual ${commandType} executed successfully!\nResult: ${JSON.stringify(
+          `Query executed successfully!\nResult: ${JSON.stringify(
             result,
             null,
             2
@@ -703,7 +639,7 @@ return balance;
           error instanceof AxiosError && error.response?.data
             ? JSON.stringify(error.response.data)
             : `${error}`;
-        setOutput(`Error executing manual ${commandType}: ${errorMessage}`);
+        setOutput(`Error executing query: ${errorMessage}`);
       }
     });
   };
@@ -796,7 +732,7 @@ return balance;
               disabled={loading || !manualCommand.trim()}
               className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50"
             >
-              Execute {commandType === "command" ? "Command" : "Query"}
+              Execute query
             </button>
           </div>
 
