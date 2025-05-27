@@ -84,10 +84,10 @@ func getMultipleUserAges(ids: Int[]): String {
     
     match ageOpt {
       Some(age) => {
-        result = result + "\nUser ID " + intToString(id) + ": " + intToString(age);
+        result = result + "\nUser ID " + numericToString(id) + ": " + numericToString(age);
       }
       None => {
-        result = result + "\nUser ID " + intToString(id) + ": No age found";
+        result = result + "\nUser ID " + numericToString(id) + ": No age found";
       }
     }
   }
@@ -112,11 +112,11 @@ func getAverageAges(ids: Int[]): Double {
                 sum = sum + val;
                 count = count + 1;
                 print("User found with");
-                print(intToString(val));
+                print(numericToString(val));
             }
             None => {
                 print("User not found");
-                print(intToString(id));
+                print(numericToString(id));
             }
         }
     }
@@ -155,10 +155,10 @@ func deleteMultipleUsers(ids: Int[]): String {
     DEL User[id].age;
     DEL User[id].email;
     deletedCount = deletedCount + 1;
-    print("Deleted user: " + intToString(id));
+    print("Deleted user: " + numericToString(id));
   }
   
-  return "Successfully deleted " + intToString(deletedCount) + " users";
+  return "Successfully deleted " + numericToString(deletedCount) + " users";
 }
 
 return deleteMultipleUsers([1, 2, 3]);`,
@@ -176,7 +176,7 @@ func getUserName(id: Int): String {
       return "User found: " + name;
     }
     None => {
-      return "No user found with ID: " + intToString(id);
+      return "No user found with ID: " + numericToString(id);
     }
   }
 }
@@ -194,13 +194,13 @@ func isUserAdult(id: Int): String {
   match ageOpt {
     Some(age) => {
       if (age >= 18) {
-        return "User ID " + intToString(id) + " is an adult (age: " + intToString(age) + ")";
+        return "User ID " + numericToString(id) + " is an adult (age: " + numericToString(age) + ")";
       } else {
-        return "User ID " + intToString(id) + " is a minor (age: " + intToString(age) + ")";
+        return "User ID " + numericToString(id) + " is a minor (age: " + numericToString(age) + ")";
       }
     }
     None => {
-      return "No age information found for user ID: " + intToString(id);
+      return "No age information found for user ID: " + numericToString(id);
     }
   }
 }
